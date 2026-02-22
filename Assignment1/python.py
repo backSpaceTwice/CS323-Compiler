@@ -1,4 +1,5 @@
 import sys
+import os
 
 # Token Categories
 KEYWORDS = {
@@ -179,23 +180,74 @@ class Lexer:
 
 # Main program
 def main():
-    if len(sys.argv) != 3:
-        print("Usage: python python.py input.txt output.txt")
-        return
+    while True:
+        print("\n" + "="*30)
+        print("Rat26S Lexical Analyzer")
+        print("="*30)
+        print("1) Run Preset Test 1 (test1.txt)")
+        print("2) Run Preset Test 2 (test2.txt)")
+        print("3) Run Preset Test 3 (test3.txt)")
+        print("C) Run Custom .rat25 file")
+        print("Q) Quit")
+        
+        choice = input("\nSelection: ").strip().lower()
 
-    lexer = Lexer(sys.argv[1])
+        if choice == 'q':
+            print("Exiting...")
+            break
+        
+        # Mapping choices to your source files
+        if choice in ['1', '2', '3']:
+            input_file = f"test{choice}.txt" 
+            output_file = f"output{choice}.out"
+        elif choice == 'c':
+            input_file = input("Enter filename (e.g., mysource.rat25): ").strip()
+            if not input_file.endswith(".rat25"):
+                print("Error: File must end with .rat25")
+                continue
+            output_file = input_file.replace(".rat25", ".out")
+        else:
+            print("Invalid selection.")
+            continue
 
-    with open(sys.argv[2], 'w') as out:
-        out.write("token\t\tlexeme\n")
+        if not os.path.exists(input_file):
+            print(f"Error: {input_file} not found.")
+            continue
 
-        while True:
-            token = lexer.lexer()
-            if token is None:
-                break
-            out.write(f"{token[0]}\t\t{token[1]}\n")
-
-    print("Lexical analysis complete.")
-
+        # Run the Lexer logic
+        try:
+            lexer_instance = Lexer(input_file)
+            with open(output_file, 'w') as out:
+                out.write("token\t\tlexeme\n")
+                while True:
+                    token = lexer_instance.lexer()
+                    if token is None:
+                        break
+                    out.write(f"{token[0]}\t\t{token[1]}\n")
+            print(f"Success! Output saved to {output_file}")
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
+
+#     if len(sys.argv) != 3:
+#         print("Usage: python python.py input.txt output.txt")
+#         return
+
+#     lexer = Lexer(sys.argv[1])
+
+#     with open(sys.argv[2], 'w') as out:
+#         out.write("token\t\tlexeme\n")
+
+#         while True:
+#             token = lexer.lexer()
+#             if token is None:
+#                 break
+#             out.write(f"{token[0]}\t\t{token[1]}\n")
+
+#     print("Lexical analysis complete.")
+
+
+# if __name__ == "__main__":
+#     main()
