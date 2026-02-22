@@ -1,0 +1,13 @@
+function calculate_area(radius) {
+    real pi = 3.14159;
+    integer count = 0;
+    
+    while (count < 10) {
+        if (radius => 0) {
+            write(pi * radius * radius);
+        } otherwise {
+            return false;
+        }
+        count = count + 1;
+    }
+}
