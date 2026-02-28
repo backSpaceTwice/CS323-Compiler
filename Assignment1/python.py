@@ -1,7 +1,6 @@
-import sys
 import os
 
-# Token Categories
+# Language Definition for Rat26S
 KEYWORDS = {
     "integer", "boolean", "real",
     "if", "otherwise", "fi",
@@ -10,183 +9,175 @@ KEYWORDS = {
     "function", "true", "false"
 }
 
-OPERATORS = {
-    "==", "!=", "<=", "=>",
-    "=", "+", "-", "*", "/", ">", "<"
-}
+OPERATORS = {"==", "!=", "<=", "=>", "=", "+", "-", "*", "/", ">", "<"}
+SEPARATORS = {"(", ")", "{", "}", ";", ",", "@"}
 
-SEPARATORS = {
-    "(", ")", "{", "}", ";", ",", "@"
-}
+class IdentifierFSM:
+    def __init__(self):
+        self.current_state = '1'
+        self.accepting_states = {'2', '4', '5', '6'}
+        self.transition_table = {
+            ('1', 'letter'): '2', ('2', 'letter'): '4', ('2', 'digit'): '5', ('2', '_'): '6',
+            ('4', 'letter'): '4', ('4', 'digit'): '5', ('4', '_'): '6',
+            ('5', 'letter'): '4', ('5', 'digit'): '5', ('5', '_'): '6',
+            ('6', 'letter'): '4', ('6', 'digit'): '5', ('6', '_'): '6',
+        }
 
-# Lexer Class
-class Lexer:
-    def __init__(self, filename):
-        with open(filename, 'r') as f:
-            self.source = f.read()
-        self.length = len(self.source)
-        self.index = 0
+    def next_state(self, char):
+        input_type = None
+        if char.isalpha(): input_type = 'letter'
+        elif char.isdigit(): input_type = 'digit'
+        elif char == '_': input_type = '_'
+        
+        state = self.transition_table.get((self.current_state, input_type))
+        return state if state else 'reject'
 
-    def get_char(self):
-        if self.index < self.length:
-            ch = self.source[self.index]
-            self.index += 1
-            return ch
-        return None
+class IntegerFSM:
+    def __init__(self):
+        self.current_state = '1'
+        self.accepting_states = {'2'}
+        self.transition_table = {
+            ('1', 'digit'): '2', ('2', 'digit'): '2'
+        }
 
-    def peek_char(self):
-        if self.index < self.length:
-            return self.source[self.index]
-        return None
+    def next_state(self, char):
+        input_type = 'digit' if char.isdigit() else None
+        state = self.transition_table.get((self.current_state, input_type))
+        return state if state else 'reject'
 
-    def skip_whitespace(self):
-        while self.peek_char() and self.peek_char().isspace():
-            self.get_char()
+class RealFSM:
+    def __init__(self):
+        self.current_state = '1'
+        self.accepting_states = {'4'}
+        self.transition_table = {
+            ('1', 'digit'): '2', ('2', 'digit'): '2', ('2', '.'): '3',
+            ('3', 'digit'): '4', ('4', 'digit'): '4',
+        }
 
-    # Identifier FSM
-    def identifier(self):
-        lexeme = ""
-        state = 0
+    def next_state(self, char):
+        input_type = 'digit' if char.isdigit() else ('.' if char == '.' else None)
+        state = self.transition_table.get((self.current_state, input_type))
+        return state if state else 'reject'
 
-        while True:
-            ch = self.peek_char()
+def lexer(content):
+    content += " " # EOF padding
+    char_pointer = 0
+    length = len(content)
+    tokens_and_lexemes = []
 
-            if state == 0:
-                if ch and ch.isalpha():
-                    lexeme += self.get_char()
-                    state = 1
-                else:
-                    return None
+    while char_pointer < length:
+        # Skip Whitespace
+        if content[char_pointer].isspace():
+            char_pointer += 1
+            continue
 
-            elif state == 1:
-                if ch and (ch.isalnum() or ch == "_"):
-                    lexeme += self.get_char()
-                else:
+        # Skip Comments /* ... */
+        if content[char_pointer] == "/" and char_pointer + 1 < length and content[char_pointer + 1] == "*":
+            char_pointer += 2
+            while char_pointer + 1 < length:
+                if content[char_pointer] == "*" and content[char_pointer + 1] == "/":
+                    char_pointer += 2
                     break
+                char_pointer += 1
+            continue
 
-        if lexeme.lower() in KEYWORDS:
-            return ("keyword", lexeme)
+        # 1. Match two-character operators
+        if char_pointer + 1 < length:
+            two_char = content[char_pointer : char_pointer + 2]
+            if two_char in OPERATORS:
+                tokens_and_lexemes.append(("operator", two_char))
+                char_pointer += 2
+                continue
+
+        # 2. Match single-character operators and separators
+        one_char = content[char_pointer]
+        if one_char in SEPARATORS:
+            tokens_and_lexemes.append(("separator", one_char))
+            char_pointer += 1
+            continue
+        if one_char in OPERATORS:
+            tokens_and_lexemes.append(("operator", one_char))
+            char_pointer += 1
+            continue
+
+        # 3. Match Identifiers/Keywords and Numbers using FSMs (Greedy)
+        id_fsm = IdentifierFSM()
+        int_fsm = IntegerFSM()
+        real_fsm = RealFSM()
+        
+        last_valid_type = None
+        last_valid_lexeme = ""
+        
+        current_id_lexeme = ""
+        current_int_lexeme = ""
+        current_real_lexeme = ""
+        
+        temp_ptr = char_pointer
+        while temp_ptr < length:
+            c = content[temp_ptr]
+            any_active = False
+            
+            # Identifier FSM
+            if id_fsm.current_state != 'reject':
+                next_s = id_fsm.next_state(c)
+                if next_s != 'reject':
+                    id_fsm.current_state = next_s
+                    current_id_lexeme += c
+                    if id_fsm.current_state in id_fsm.accepting_states:
+                        if len(current_id_lexeme) >= len(last_valid_lexeme):
+                            last_valid_type = "keyword" if current_id_lexeme in KEYWORDS else "identifier"
+                            last_valid_lexeme = current_id_lexeme
+                    any_active = True
+                else: id_fsm.current_state = 'reject'
+            
+            # Integer FSM
+            if int_fsm.current_state != 'reject':
+                next_s = int_fsm.next_state(c)
+                if next_s != 'reject':
+                    int_fsm.current_state = next_s
+                    current_int_lexeme += c
+                    if int_fsm.current_state in int_fsm.accepting_states:
+                        if len(current_int_lexeme) >= len(last_valid_lexeme):
+                            last_valid_type = "integer"
+                            last_valid_lexeme = current_int_lexeme
+                    any_active = True
+                else: int_fsm.current_state = 'reject'
+                
+            # Real FSM
+            if real_fsm.current_state != 'reject':
+                next_s = real_fsm.next_state(c)
+                if next_s != 'reject':
+                    real_fsm.current_state = next_s
+                    current_real_lexeme += c
+                    if real_fsm.current_state in real_fsm.accepting_states:
+                        if len(current_real_lexeme) >= len(last_valid_lexeme):
+                            last_valid_type = "real"
+                            last_valid_lexeme = current_real_lexeme
+                    any_active = True
+                else: real_fsm.current_state = 'reject'
+            
+            if not any_active:
+                break
+            temp_ptr += 1
+
+        if last_valid_type:
+            tokens_and_lexemes.append((last_valid_type, last_valid_lexeme))
+            char_pointer += len(last_valid_lexeme)
         else:
-            return ("identifier", lexeme)
+            # Illegal character
+            if char_pointer < length - 1:
+                tokens_and_lexemes.append(("invalid", content[char_pointer]))
+            char_pointer += 1
 
-    # Integer + Real FSM
-    def number(self):
-        lexeme = ""
-        state = 0
-        is_real = False
+    return tokens_and_lexemes
 
-        while True:
-            ch = self.peek_char()
-
-            if state == 0:
-                if ch and ch.isdigit():
-                    lexeme += self.get_char()
-                    state = 1
-                else:
-                    return None
-
-            elif state == 1:
-                if ch and ch.isdigit():
-                    lexeme += self.get_char()
-                elif ch == ".":
-                    is_real = True
-                    lexeme += self.get_char()
-                    state = 2
-                else:
-                    break
-
-            elif state == 2:
-                if ch and ch.isdigit():
-                    lexeme += self.get_char()
-                    state = 3
-                else:
-                    print("Lexical Error: Invalid real number")
-                    return None
-
-            elif state == 3:
-                if ch and ch.isdigit():
-                    lexeme += self.get_char()
-                else:
-                    break
-
-        if is_real:
-            return ("real", lexeme)
-        else:
-            return ("integer", lexeme)
-
-    # Comment Handling
-    def skip_comment(self):
-        if self.peek_char() == "/" and self.source[self.index + 1] == "*":
-            self.get_char()  # /
-            self.get_char()  # *
-
-            while True:
-                ch = self.get_char()
-                if ch is None:
-                    print("Unclosed comment error")
-                    return
-                if ch == "*" and self.peek_char() == "/":
-                    self.get_char()
-                    break
-
-    # Operators + Separators
-    def operator_or_separator(self):
-        ch = self.get_char()
-
-        # Check two-character operators first
-        next_ch = self.peek_char()
-        if next_ch:
-            combined = ch + next_ch
-            if combined in OPERATORS:
-                self.get_char()
-                return ("operator", combined)
-
-        if ch in OPERATORS:
-            return ("operator", ch)
-
-        if ch in SEPARATORS:
-            return ("separator", ch)
-
-        return None
-
-    # The Main lexer() Function
-    def lexer(self):
-        self.skip_whitespace()
-
-        if self.peek_char() is None:
-            return None
-
-        # Comments
-        if self.peek_char() == "/" and self.source[self.index + 1] == "*":
-            self.skip_comment()
-            return self.lexer()
-
-        # Identifier
-        if self.peek_char().isalpha():
-            return self.identifier()
-
-        # Number
-        if self.peek_char().isdigit():
-            return self.number()
-
-        # Operator or separator
-        token = self.operator_or_separator()
-        if token:
-            return token
-
-        # Unknown
-        print("Lexical Error: Unknown character", self.get_char())
-        return self.lexer()
-
-# Main program
 def main():
-    # 1. Define and create the folder
     output_folder = "output_results"
-    os.makedirs(output_folder, exist_ok=True) # safe way to create dir
+    os.makedirs(output_folder, exist_ok=True)
 
     while True:
         print("\n" + "="*30)
-        print("Rat26S Lexical Analyzer")
+        print("Rat26S Lexical Analyzer (Final FSM)")
         print("="*30)
         print("1) Run Preset Test 1 (test1.txt)")
         print("2) Run Preset Test 2 (test2.txt)")
@@ -195,12 +186,8 @@ def main():
         print("Q) Quit")
         
         choice = input("\nSelection: ").strip().lower()
-
-        if choice == 'q':
-            print("Exiting...")
-            break
+        if choice == 'q': break
         
-        # Consistent naming: output_filename
         if choice in ['1', '2', '3']:
             input_file = f"test{choice}.txt" 
             output_filename = f"output{choice}.out" 
@@ -218,43 +205,23 @@ def main():
             print(f"Error: {input_file} not found.")
             continue
 
-        # Combine folder + filename
         full_output_path = os.path.join(output_folder, output_filename)
 
         try:
-            lexer_instance = Lexer(input_file)
-            # Use the full path here
+            with open(input_file, 'r') as f:
+                content = f.read()
+            
+            tokens = lexer(content)
+            
             with open(full_output_path, 'w') as out:
-                out.write("token\t\tlexeme\n")
-                while True:
-                    token = lexer_instance.lexer()
-                    if token is None:
-                        break
-                    out.write(f"{token[0]}\t\t{token[1]}\n")
+                out.write(f"{'token':<15} {'lexeme':<15}\n")
+                out.write("-" * 30 + "\n")
+                for t_type, lex in tokens:
+                    out.write(f"{t_type:<15} {lex:<15}\n")
+            
             print(f"Success! Output saved to: {full_output_path}")
         except Exception as e:
             print(f"An error occurred: {e}")
 
 if __name__ == "__main__":
     main()
-
-#     if len(sys.argv) != 3:
-#         print("Usage: python python.py input.txt output.txt")
-#         return
-
-#     lexer = Lexer(sys.argv[1])
-
-#     with open(sys.argv[2], 'w') as out:
-#         out.write("token\t\tlexeme\n")
-
-#         while True:
-#             token = lexer.lexer()
-#             if token is None:
-#                 break
-#             out.write(f"{token[0]}\t\t{token[1]}\n")
-
-#     print("Lexical analysis complete.")
-
-
-# if __name__ == "__main__":
-#     main()
