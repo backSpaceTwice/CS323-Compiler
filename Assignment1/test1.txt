@@ -1,1 +1,17 @@
-while (fahr <= upper) a = 23.00; /* sample */
+function calculate_area(radius) {
+    integer count = 10;
+    real pi = 3.1415;
+    real area;
+
+    while (count > 0) {
+        area = pi * (radius * radius);
+        write(area);
+        count = count - 1;
+    }
+
+    if (area => 100.50) {
+        return true;
+    } otherwise {
+        return false;
+    }
+}
