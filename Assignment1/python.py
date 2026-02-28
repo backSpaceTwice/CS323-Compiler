@@ -180,6 +180,10 @@ class Lexer:
 
 # Main program
 def main():
+    # 1. Define and create the folder
+    output_folder = "output_results"
+    os.makedirs(output_folder, exist_ok=True) # safe way to create dir
+
     while True:
         print("\n" + "="*30)
         print("Rat26S Lexical Analyzer")
@@ -196,16 +200,16 @@ def main():
             print("Exiting...")
             break
         
-        # Mapping choices to your source files
+        # Consistent naming: output_filename
         if choice in ['1', '2', '3']:
             input_file = f"test{choice}.txt" 
-            output_file = f"output{choice}.out"
+            output_filename = f"output{choice}.out" 
         elif choice == 'c':
             input_file = input("Enter filename (e.g., mysource.rat25): ").strip()
             if not input_file.endswith(".rat25"):
                 print("Error: File must end with .rat25")
                 continue
-            output_file = input_file.replace(".rat25", ".out")
+            output_filename = input_file.replace(".rat25", ".out")
         else:
             print("Invalid selection.")
             continue
@@ -214,17 +218,20 @@ def main():
             print(f"Error: {input_file} not found.")
             continue
 
-        # Run the Lexer logic
+        # Combine folder + filename
+        full_output_path = os.path.join(output_folder, output_filename)
+
         try:
             lexer_instance = Lexer(input_file)
-            with open(output_file, 'w') as out:
+            # Use the full path here
+            with open(full_output_path, 'w') as out:
                 out.write("token\t\tlexeme\n")
                 while True:
                     token = lexer_instance.lexer()
                     if token is None:
                         break
                     out.write(f"{token[0]}\t\t{token[1]}\n")
-            print(f"Success! Output saved to {output_file}")
+            print(f"Success! Output saved to: {full_output_path}")
         except Exception as e:
             print(f"An error occurred: {e}")
 
