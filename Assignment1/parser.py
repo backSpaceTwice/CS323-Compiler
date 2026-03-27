@@ -220,13 +220,18 @@ class Parser:
         self.match_separator("}")
 
     def If(self) -> None:
-        self._prod("<If> -> if ( <Condition> ) <Statement> <OptOtherwise>")
         self.match_keyword("if")
         self.match_separator("(")
         self.Condition()
         self.match_separator(")")
         self.Statement()
-        self.OptOtherwise()
+        if self.current_token == "keyword" and self.current_lexeme == "otherwise":
+            self._prod("<If> -> if ( <Condition> ) <Statement> otherwise <Statement> fi")
+            self.match_keyword("otherwise")
+            self.Statement()
+        else:
+            self._prod("<If> -> if ( <Condition> ) <Statement> fi")
+        self.match_keyword("fi")
 
     def OptOtherwise(self) -> None:
         if self.current_token == "keyword" and self.current_lexeme == "otherwise":
