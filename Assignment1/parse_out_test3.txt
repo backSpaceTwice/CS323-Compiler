@@ -1,173 +1,173 @@
 Token: Keyword Lexeme: function
-<Rat26S> -> <StatementList>
-<StatementList> -> <Statement> <StatementList>
-<Statement> -> <FunctionDef>
-<FunctionDef> -> function <Identifier> ( <ParameterList> ) <CompoundStatement>
+  <Rat26S> -> <StatementList>
+  <StatementList> -> <Statement> <StatementList>
+  <Statement> -> <FunctionDef>
+  <FunctionDef> -> function <Identifier> ( <ParameterList> ) <CompoundStatement>
 Token: Identifier Lexeme: calculate_area
 Token: Separator Lexeme: (
 Token: Identifier Lexeme: radius
-<ParameterList> -> identifier <ParameterListPrime>
+  <ParameterList> -> identifier <ParameterListPrime>
 Token: Separator Lexeme: )
-<ParameterListPrime> -> ε
+  <ParameterListPrime> -> ε
 Token: Separator Lexeme: {
-<CompoundStatement> -> { <StatementList> }
+  <CompoundStatement> -> { <StatementList> }
 Token: Keyword Lexeme: real
-<StatementList> -> <Statement> <StatementList>
-<Statement> -> <Declaration>
-<Declaration> -> <Qualifier> identifier <OptInit> ;
-<Qualifier> -> real
+  <StatementList> -> <Statement> <StatementList>
+  <Statement> -> <Declaration>
+  <Declaration> -> <Qualifier> identifier <OptInit> ;
+  <Qualifier> -> real
 Token: Identifier Lexeme: pi
 Token: Operator Lexeme: =
-<OptInit> -> = <Expression>
+  <OptInit> -> = <Expression>
 Token: Real Lexeme: 3.14159
-<Expression> -> <Term> <ExpressionPrime>
-<Term> -> <Factor> <TermPrime>
-<Factor> -> <Primary>
-<Primary> -> <Real>
+  <Expression> -> <Term> <ExpressionPrime>
+  <Term> -> <Factor> <TermPrime>
+  <Factor> -> <Primary>
+  <Primary> -> <Real>
 Token: Separator Lexeme: ;
-<TermPrime> -> ε
-<ExpressionPrime> -> ε
+  <TermPrime> -> ε
+  <ExpressionPrime> -> ε
 Token: Keyword Lexeme: integer
-<StatementList> -> <Statement> <StatementList>
-<Statement> -> <Declaration>
-<Declaration> -> <Qualifier> identifier <OptInit> ;
-<Qualifier> -> integer
+  <StatementList> -> <Statement> <StatementList>
+  <Statement> -> <Declaration>
+  <Declaration> -> <Qualifier> identifier <OptInit> ;
+  <Qualifier> -> integer
 Token: Identifier Lexeme: count
 Token: Operator Lexeme: =
-<OptInit> -> = <Expression>
+  <OptInit> -> = <Expression>
 Token: Integer Lexeme: 0
-<Expression> -> <Term> <ExpressionPrime>
-<Term> -> <Factor> <TermPrime>
-<Factor> -> <Primary>
-<Primary> -> <Integer>
+  <Expression> -> <Term> <ExpressionPrime>
+  <Term> -> <Factor> <TermPrime>
+  <Factor> -> <Primary>
+  <Primary> -> <Integer>
 Token: Separator Lexeme: ;
-<TermPrime> -> ε
-<ExpressionPrime> -> ε
+  <TermPrime> -> ε
+  <ExpressionPrime> -> ε
 Token: Keyword Lexeme: while
-<StatementList> -> <Statement> <StatementList>
-<Statement> -> <While>
-<While> -> while ( <Condition> ) <CompoundStatement>
+  <StatementList> -> <Statement> <StatementList>
+  <Statement> -> <While>
+  <While> -> while ( <Condition> ) <CompoundStatement>
 Token: Separator Lexeme: (
 Token: Identifier Lexeme: count
-<Condition> -> <Expression> <RelExprPrime>
-<Expression> -> <Term> <ExpressionPrime>
-<Term> -> <Factor> <TermPrime>
-<Factor> -> <Primary>
-<Primary> -> <Identifier> <OptArguments>
+  <Condition> -> <Expression> <RelExprPrime>
+  <Expression> -> <Term> <ExpressionPrime>
+  <Term> -> <Factor> <TermPrime>
+  <Factor> -> <Primary>
+  <Primary> -> <Identifier> <OptArguments>
 Token: Operator Lexeme: <
-<OptArguments> -> ε
-<TermPrime> -> ε
-<ExpressionPrime> -> ε
-<RelExprPrime> -> < <Expression>
+  <OptArguments> -> ε
+  <TermPrime> -> ε
+  <ExpressionPrime> -> ε
+  <RelExprPrime> -> < <Expression>
 Token: Integer Lexeme: 10
-<Expression> -> <Term> <ExpressionPrime>
-<Term> -> <Factor> <TermPrime>
-<Factor> -> <Primary>
-<Primary> -> <Integer>
+  <Expression> -> <Term> <ExpressionPrime>
+  <Term> -> <Factor> <TermPrime>
+  <Factor> -> <Primary>
+  <Primary> -> <Integer>
 Token: Separator Lexeme: )
-<TermPrime> -> ε
-<ExpressionPrime> -> ε
+  <TermPrime> -> ε
+  <ExpressionPrime> -> ε
 Token: Separator Lexeme: {
-<CompoundStatement> -> { <StatementList> }
+  <CompoundStatement> -> { <StatementList> }
 Token: Keyword Lexeme: if
-<StatementList> -> <Statement> <StatementList>
-<Statement> -> <If>
-<If> -> if ( <Condition> ) <CompoundStatement> <OptOtherwise>
+  <StatementList> -> <Statement> <StatementList>
+  <Statement> -> <If>
+  <If> -> if ( <Condition> ) <CompoundStatement> <OptOtherwise>
 Token: Separator Lexeme: (
 Token: Identifier Lexeme: radius
-<Condition> -> <Expression> <RelExprPrime>
-<Expression> -> <Term> <ExpressionPrime>
-<Term> -> <Factor> <TermPrime>
-<Factor> -> <Primary>
-<Primary> -> <Identifier> <OptArguments>
+  <Condition> -> <Expression> <RelExprPrime>
+  <Expression> -> <Term> <ExpressionPrime>
+  <Term> -> <Factor> <TermPrime>
+  <Factor> -> <Primary>
+  <Primary> -> <Identifier> <OptArguments>
 Token: Operator Lexeme: =>
-<OptArguments> -> ε
-<TermPrime> -> ε
-<ExpressionPrime> -> ε
-<RelExprPrime> -> => <Expression>
+  <OptArguments> -> ε
+  <TermPrime> -> ε
+  <ExpressionPrime> -> ε
+  <RelExprPrime> -> => <Expression>
 Token: Integer Lexeme: 0
-<Expression> -> <Term> <ExpressionPrime>
-<Term> -> <Factor> <TermPrime>
-<Factor> -> <Primary>
-<Primary> -> <Integer>
+  <Expression> -> <Term> <ExpressionPrime>
+  <Term> -> <Factor> <TermPrime>
+  <Factor> -> <Primary>
+  <Primary> -> <Integer>
 Token: Separator Lexeme: )
-<TermPrime> -> ε
-<ExpressionPrime> -> ε
+  <TermPrime> -> ε
+  <ExpressionPrime> -> ε
 Token: Separator Lexeme: {
-<CompoundStatement> -> { <StatementList> }
+  <CompoundStatement> -> { <StatementList> }
 Token: Keyword Lexeme: write
-<StatementList> -> <Statement> <StatementList>
-<Statement> -> <Print>
-<Print> -> write ( <ExpressionList> ) ;
+  <StatementList> -> <Statement> <StatementList>
+  <Statement> -> <Print>
+  <Print> -> write ( <ExpressionList> ) ;
 Token: Separator Lexeme: (
 Token: Identifier Lexeme: pi
-<ExpressionList> -> <Expression> <ExpressionListTail>
-<Expression> -> <Term> <ExpressionPrime>
-<Term> -> <Factor> <TermPrime>
-<Factor> -> <Primary>
-<Primary> -> <Identifier> <OptArguments>
+  <ExpressionList> -> <Expression> <ExpressionListTail>
+  <Expression> -> <Term> <ExpressionPrime>
+  <Term> -> <Factor> <TermPrime>
+  <Factor> -> <Primary>
+  <Primary> -> <Identifier> <OptArguments>
 Token: Operator Lexeme: *
-<OptArguments> -> ε
-<TermPrime> -> * <Factor> <TermPrime>
+  <OptArguments> -> ε
+  <TermPrime> -> * <Factor> <TermPrime>
 Token: Identifier Lexeme: radius
-<Factor> -> <Primary>
-<Primary> -> <Identifier> <OptArguments>
+  <Factor> -> <Primary>
+  <Primary> -> <Identifier> <OptArguments>
 Token: Operator Lexeme: *
-<OptArguments> -> ε
-<TermPrime> -> * <Factor> <TermPrime>
+  <OptArguments> -> ε
+  <TermPrime> -> * <Factor> <TermPrime>
 Token: Identifier Lexeme: radius
-<Factor> -> <Primary>
-<Primary> -> <Identifier> <OptArguments>
+  <Factor> -> <Primary>
+  <Primary> -> <Identifier> <OptArguments>
 Token: Separator Lexeme: )
-<OptArguments> -> ε
-<TermPrime> -> ε
-<ExpressionPrime> -> ε
-<ExpressionListTail> -> ε
+  <OptArguments> -> ε
+  <TermPrime> -> ε
+  <ExpressionPrime> -> ε
+  <ExpressionListTail> -> ε
 Token: Separator Lexeme: ;
 Token: Separator Lexeme: }
-<StatementList> -> ε
+  <StatementList> -> ε
 Token: Keyword Lexeme: otherwise
-<OptOtherwise> -> otherwise <CompoundStatement>
+  <OptOtherwise> -> otherwise <CompoundStatement>
 Token: Separator Lexeme: {
-<CompoundStatement> -> { <StatementList> }
+  <CompoundStatement> -> { <StatementList> }
 Token: Keyword Lexeme: return
-<StatementList> -> <Statement> <StatementList>
-<Statement> -> <Return>
-<Return> -> return <OptExpression> ;
+  <StatementList> -> <Statement> <StatementList>
+  <Statement> -> <Return>
+  <Return> -> return <OptExpression> ;
 Token: Keyword Lexeme: false
-<OptExpression> -> <Expression>
-<Expression> -> <Term> <ExpressionPrime>
-<Term> -> <Factor> <TermPrime>
-<Factor> -> <Primary>
-<Primary> -> false
+  <OptExpression> -> <Expression>
+  <Expression> -> <Term> <ExpressionPrime>
+  <Term> -> <Factor> <TermPrime>
+  <Factor> -> <Primary>
+  <Primary> -> false
 Token: Separator Lexeme: ;
-<TermPrime> -> ε
-<ExpressionPrime> -> ε
+  <TermPrime> -> ε
+  <ExpressionPrime> -> ε
 Token: Separator Lexeme: }
-<StatementList> -> ε
+  <StatementList> -> ε
 Token: Identifier Lexeme: count
-<StatementList> -> <Statement> <StatementList>
-<Statement> -> <Assign>
-<Assign> -> <Identifier> = <Expression> ;
+  <StatementList> -> <Statement> <StatementList>
+  <Statement> -> <Assign>
+  <Assign> -> <Identifier> = <Expression> ;
 Token: Operator Lexeme: =
 Token: Identifier Lexeme: count
-<Expression> -> <Term> <ExpressionPrime>
-<Term> -> <Factor> <TermPrime>
-<Factor> -> <Primary>
-<Primary> -> <Identifier> <OptArguments>
+  <Expression> -> <Term> <ExpressionPrime>
+  <Term> -> <Factor> <TermPrime>
+  <Factor> -> <Primary>
+  <Primary> -> <Identifier> <OptArguments>
 Token: Operator Lexeme: +
-<OptArguments> -> ε
-<TermPrime> -> ε
-<ExpressionPrime> -> + <Term> <ExpressionPrime>
+  <OptArguments> -> ε
+  <TermPrime> -> ε
+  <ExpressionPrime> -> + <Term> <ExpressionPrime>
 Token: Integer Lexeme: 1
-<Term> -> <Factor> <TermPrime>
-<Factor> -> <Primary>
-<Primary> -> <Integer>
+  <Term> -> <Factor> <TermPrime>
+  <Factor> -> <Primary>
+  <Primary> -> <Integer>
 Token: Separator Lexeme: ;
-<TermPrime> -> ε
-<ExpressionPrime> -> ε
+  <TermPrime> -> ε
+  <ExpressionPrime> -> ε
 Token: Separator Lexeme: }
-<StatementList> -> ε
+  <StatementList> -> ε
 Token: Separator Lexeme: }
-<StatementList> -> ε
-<StatementList> -> ε
+  <StatementList> -> ε
+  <StatementList> -> ε

@@ -28,7 +28,7 @@ class IdentifierFSM:
         if char.isalpha(): input_type = 'letter'
         elif char.isdigit(): input_type = 'digit'
         elif char == '_': input_type = '_'
-        
+
         state = self.transition_table.get((self.current_state, input_type))
         return state if state else 'reject'
 
@@ -111,19 +111,19 @@ def lexer(content):
         id_fsm = IdentifierFSM()
         int_fsm = IntegerFSM()
         real_fsm = RealFSM()
-        
+
         last_valid_type = None
         last_valid_lexeme = ""
-        
+
         current_id_lexeme = ""
         current_int_lexeme = ""
         current_real_lexeme = ""
-        
+
         temp_ptr = char_pointer
         while temp_ptr < length:
             c = content[temp_ptr]
             any_active = False
-            
+
             # Identifier FSM
             if id_fsm.current_state != 'reject':
                 next_s = id_fsm.next_state(c)
@@ -136,7 +136,7 @@ def lexer(content):
                             last_valid_lexeme = current_id_lexeme
                     any_active = True
                 else: id_fsm.current_state = 'reject'
-            
+
             # Integer FSM
             if int_fsm.current_state != 'reject':
                 next_s = int_fsm.next_state(c)
@@ -149,7 +149,7 @@ def lexer(content):
                             last_valid_lexeme = current_int_lexeme
                     any_active = True
                 else: int_fsm.current_state = 'reject'
-                
+
             # Real FSM
             if real_fsm.current_state != 'reject':
                 next_s = real_fsm.next_state(c)
@@ -162,7 +162,7 @@ def lexer(content):
                             last_valid_lexeme = current_real_lexeme
                     any_active = True
                 else: real_fsm.current_state = 'reject'
-            
+
             if not any_active:
                 break
             temp_ptr += 1
@@ -191,10 +191,10 @@ def main():
         print("3) Run Preset Test 3 (test3.txt)")
         print("C) Run Custom .rat25 file")
         print("Q) Quit")
-        
+
         choice = input("\nSelection: ").strip().lower()
         if choice == 'q': break
-        
+
         if choice in ['1', '2', '3']:
             input_file = f"test{choice}.txt" 
             output_filename = f"output{choice}.out" 
@@ -217,16 +217,16 @@ def main():
         try:
             with open(input_file, 'r') as f:
                 content = f.read()
-            
+
             tokens = lexer(content)
-            
+
             with open(full_output_path, 'w') as out:
                 out.write(f"{'token':<15} {'lexeme':<15}\n")
                 out.write("-" * 30 + "\n")
                 for row in tokens:
                     t_type, lex = row[0], row[1]
                     out.write(f"{t_type:<15} {lex:<15}\n")
-            
+
             print(f"Success! Output saved to: {full_output_path}")
         except Exception as e:
             print(f"An error occurred: {e}")

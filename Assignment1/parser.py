@@ -20,6 +20,9 @@ _lexer_mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_lexer_mod)
 lexer = _lexer_mod.lexer
 
+# Lines that are not token traces are indented so Token: lines stand out.
+_OUTPUT_INDENT = "  "
+
 TokenRow = Tuple[str, str, int]
 
 
@@ -46,7 +49,7 @@ class Parser:
 
     def _prod(self, text: str) -> None:
         if self.print_switch:
-            self.out.write(text + "\n")
+            self.out.write(_OUTPUT_INDENT + text + "\n")
 
     def _advance(self) -> None:
         if self._i >= len(self.tokens):
@@ -76,7 +79,7 @@ class Parser:
         lex = self.current_lexeme if self.current_token is not None else ""
         detail = got_detail if got_detail is not None else f"{tok} / {lex!r}"
         msg = f"Syntax Error at line {line}: Expected {expected} but got {detail}"
-        self.out.write(msg + "\n")
+        self.out.write(_OUTPUT_INDENT + msg + "\n")
         raise ParseError(msg)
 
     def match_token(self, expected_type: str) -> None:
