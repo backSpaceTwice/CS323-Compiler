@@ -1,0 +1,24 @@
+Token: Identifier Lexeme: a
+  <Rat26S> -> <StatementList>
+  <StatementList> -> <Statement> <StatementList>
+  <Statement> -> <Assign>
+  <Assign> -> <Identifier> = <Expression> ;
+Token: Operator Lexeme: =
+Token: Identifier Lexeme: b
+  <Expression> -> <Term> <ExpressionPrime>
+  <Term> -> <Factor> <TermPrime>
+  <Factor> -> <Primary>
+  <Primary> -> <Identifier> <OptArguments>
+Token: Operator Lexeme: +
+  <OptArguments> -> ε
+  <TermPrime> -> ε
+  <ExpressionPrime> -> + <Term> <ExpressionPrime>
+Token: Identifier Lexeme: c
+  <Term> -> <Factor> <TermPrime>
+  <Factor> -> <Primary>
+  <Primary> -> <Identifier> <OptArguments>
+Token: Separator Lexeme: ;
+  <OptArguments> -> ε
+  <TermPrime> -> ε
+  <ExpressionPrime> -> ε
+  <StatementList> -> ε
