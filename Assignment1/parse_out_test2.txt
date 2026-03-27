@@ -1,0 +1,46 @@
+Token: Keyword Lexeme: if
+<Rat26S> -> <StatementList>
+<StatementList> -> <Statement> <StatementList>
+<Statement> -> <If>
+<If> -> if ( <Condition> ) <CompoundStatement> <OptOtherwise>
+Token: Separator Lexeme: (
+Token: Identifier Lexeme: a
+<Condition> -> <Expression> <RelExprPrime>
+<Expression> -> <Term> <ExpressionPrime>
+<Term> -> <Factor> <TermPrime>
+<Factor> -> <Primary>
+<Primary> -> <Identifier> <OptArguments>
+Token: Operator Lexeme: !=
+<OptArguments> -> ε
+<TermPrime> -> ε
+<ExpressionPrime> -> ε
+<RelExprPrime> -> != <Expression>
+Token: Integer Lexeme: 0
+<Expression> -> <Term> <ExpressionPrime>
+<Term> -> <Factor> <TermPrime>
+<Factor> -> <Primary>
+<Primary> -> <Integer>
+Token: Separator Lexeme: )
+<TermPrime> -> ε
+<ExpressionPrime> -> ε
+Token: Separator Lexeme: {
+<CompoundStatement> -> { <StatementList> }
+Token: Keyword Lexeme: return
+<StatementList> -> <Statement> <StatementList>
+<Statement> -> <Return>
+<Return> -> return <OptExpression> ;
+Token: Keyword Lexeme: true
+<OptExpression> -> <Expression>
+<Expression> -> <Term> <ExpressionPrime>
+<Term> -> <Factor> <TermPrime>
+<Factor> -> <Primary>
+<Primary> -> true
+Token: Separator Lexeme: ;
+<TermPrime> -> ε
+<ExpressionPrime> -> ε
+Token: Separator Lexeme: }
+<StatementList> -> ε
+Token: Separator Lexeme: @
+<OptOtherwise> -> ε
+<StatementList> -> <Statement> <StatementList>
+Syntax Error at line 3: Expected statement but got separator / '@'

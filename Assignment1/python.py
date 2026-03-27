@@ -64,10 +64,13 @@ def lexer(content):
     char_pointer = 0
     length = len(content)
     tokens_and_lexemes = []
+    line = 1
 
     while char_pointer < length:
         # Skip Whitespace
         if content[char_pointer].isspace():
+            if content[char_pointer] == "\n":
+                line += 1
             char_pointer += 1
             continue
 
@@ -75,28 +78,32 @@ def lexer(content):
         if content[char_pointer] == "/" and char_pointer + 1 < length and content[char_pointer + 1] == "*":
             char_pointer += 2
             while char_pointer + 1 < length:
+                if content[char_pointer] == "\n":
+                    line += 1
                 if content[char_pointer] == "*" and content[char_pointer + 1] == "/":
                     char_pointer += 2
                     break
                 char_pointer += 1
             continue
 
+        token_start_line = line
+
         # 1. Match two-character operators
         if char_pointer + 1 < length:
             two_char = content[char_pointer : char_pointer + 2]
             if two_char in OPERATORS:
-                tokens_and_lexemes.append(("operator", two_char))
+                tokens_and_lexemes.append(("operator", two_char, token_start_line))
                 char_pointer += 2
                 continue
 
         # 2. Match single-character operators and separators
         one_char = content[char_pointer]
         if one_char in SEPARATORS:
-            tokens_and_lexemes.append(("separator", one_char))
+            tokens_and_lexemes.append(("separator", one_char, token_start_line))
             char_pointer += 1
             continue
         if one_char in OPERATORS:
-            tokens_and_lexemes.append(("operator", one_char))
+            tokens_and_lexemes.append(("operator", one_char, token_start_line))
             char_pointer += 1
             continue
 
@@ -161,12 +168,12 @@ def lexer(content):
             temp_ptr += 1
 
         if last_valid_type:
-            tokens_and_lexemes.append((last_valid_type, last_valid_lexeme))
+            tokens_and_lexemes.append((last_valid_type, last_valid_lexeme, token_start_line))
             char_pointer += len(last_valid_lexeme)
         else:
             # Illegal character
             if char_pointer < length - 1:
-                tokens_and_lexemes.append(("invalid", content[char_pointer]))
+                tokens_and_lexemes.append(("invalid", content[char_pointer], token_start_line))
             char_pointer += 1
 
     return tokens_and_lexemes
@@ -216,7 +223,8 @@ def main():
             with open(full_output_path, 'w') as out:
                 out.write(f"{'token':<15} {'lexeme':<15}\n")
                 out.write("-" * 30 + "\n")
-                for t_type, lex in tokens:
+                for row in tokens:
+                    t_type, lex = row[0], row[1]
                     out.write(f"{t_type:<15} {lex:<15}\n")
             
             print(f"Success! Output saved to: {full_output_path}")
