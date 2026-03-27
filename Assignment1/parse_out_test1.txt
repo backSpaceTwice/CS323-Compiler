@@ -54,7 +54,7 @@ Token: Separator Lexeme: ;
 Token: Keyword Lexeme: while
   <StatementList> -> <Statement> <StatementList>
   <Statement> -> <While>
-  <While> -> while ( <Condition> ) <CompoundStatement>
+  <While> -> while ( <Condition> ) <Statement>
 Token: Separator Lexeme: (
 Token: Identifier Lexeme: count
   <Condition> -> <Expression> <RelExprPrime>
@@ -76,6 +76,7 @@ Token: Separator Lexeme: )
   <TermPrime> -> ε
   <ExpressionPrime> -> ε
 Token: Separator Lexeme: {
+  <Statement> -> <CompoundStatement>
   <CompoundStatement> -> { <StatementList> }
 Token: Identifier Lexeme: area
   <StatementList> -> <Statement> <StatementList>
@@ -154,7 +155,7 @@ Token: Separator Lexeme: }
 Token: Keyword Lexeme: if
   <StatementList> -> <Statement> <StatementList>
   <Statement> -> <If>
-  <If> -> if ( <Condition> ) <CompoundStatement> <OptOtherwise>
+  <If> -> if ( <Condition> ) <Statement> <OptOtherwise>
 Token: Separator Lexeme: (
 Token: Identifier Lexeme: area
   <Condition> -> <Expression> <RelExprPrime>
@@ -176,6 +177,7 @@ Token: Separator Lexeme: )
   <TermPrime> -> ε
   <ExpressionPrime> -> ε
 Token: Separator Lexeme: {
+  <Statement> -> <CompoundStatement>
   <CompoundStatement> -> { <StatementList> }
 Token: Keyword Lexeme: return
   <StatementList> -> <Statement> <StatementList>
@@ -193,8 +195,9 @@ Token: Separator Lexeme: ;
 Token: Separator Lexeme: }
   <StatementList> -> ε
 Token: Keyword Lexeme: otherwise
-  <OptOtherwise> -> otherwise <CompoundStatement>
+  <OptOtherwise> -> otherwise <Statement>
 Token: Separator Lexeme: {
+  <Statement> -> <CompoundStatement>
   <CompoundStatement> -> { <StatementList> }
 Token: Keyword Lexeme: return
   <StatementList> -> <Statement> <StatementList>
