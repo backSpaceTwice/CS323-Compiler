@@ -1,0 +1,9 @@
+@
+function multiply(a integer, b integer)
+{
+    write(a * b);
+}
+@
+@
+multiply(5, 6);
+@

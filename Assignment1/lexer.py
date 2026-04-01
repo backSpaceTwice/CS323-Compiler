@@ -189,7 +189,7 @@ def main():
         print("1) Run Preset Test 1 (test1.txt)")
         print("2) Run Preset Test 2 (test2.txt)")
         print("3) Run Preset Test 3 (test3.txt)")
-        print("C) Run Custom .rat25 file")
+        print("C) Run Custom .rat26 file")
         print("Q) Quit")
 
         choice = input("\nSelection: ").strip().lower()
@@ -199,11 +199,11 @@ def main():
             input_file = f"test{choice}.txt" 
             output_filename = f"output{choice}.out" 
         elif choice == 'c':
-            input_file = input("Enter filename (e.g., mysource.rat25): ").strip()
-            if not input_file.endswith(".rat25"):
-                print("Error: File must end with .rat25")
+            input_file = input("Enter filename (e.g., mysource.rat26): ").strip()
+            if not input_file.endswith(".rat26"):
+                print("Error: File must end with .rat26")
                 continue
-            output_filename = input_file.replace(".rat25", ".out")
+            output_filename = input_file.replace(".rat26", ".out")
         else:
             print("Invalid selection.")
             continue

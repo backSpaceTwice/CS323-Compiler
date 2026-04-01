@@ -1,3 +1,5 @@
-GEMINI.md
-/Rat24S-Compiler/
+__pycache__/
 .DS_Store
+/oldExample/
+/Rat24S-Compiler/
+GEMINI.md
