@@ -29,6 +29,9 @@ class IdentifierFSM:
         elif char.isdigit(): input_type = 'digit'
         elif char == '_': input_type = '_'
 
+        if input_type is None:
+            return 'reject'
+
         state = self.transition_table.get((self.current_state, input_type))
         return state if state else 'reject'
 
@@ -42,6 +45,10 @@ class IntegerFSM:
 
     def next_state(self, char):
         input_type = 'digit' if char.isdigit() else None
+        
+        if input_type is None:
+            return 'reject'
+
         state = self.transition_table.get((self.current_state, input_type))
         return state if state else 'reject'
 
@@ -56,6 +63,10 @@ class RealFSM:
 
     def next_state(self, char):
         input_type = 'digit' if char.isdigit() else ('.' if char == '.' else None)
+        
+        if input_type is None:
+            return 'reject'
+
         state = self.transition_table.get((self.current_state, input_type))
         return state if state else 'reject'
 
