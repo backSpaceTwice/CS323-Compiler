@@ -155,13 +155,11 @@ class Parser:
         try:
             self.rat26s()
             result_lines = []
-            result_lines.append("\nSyntax is correct.\n")
             result_lines.append(self.instr_table.print_table())
             result_lines.append(self.sym_table.print_table())
-            full_output = "\n".join(self.output) + "\n" + "\n".join(result_lines)
+            full_output = "\n".join(result_lines)
             with open(output_filename, "w") as f:
                 f.write(full_output)
-            print(f"Parser output written to {output_filename}")
             return True, full_output
         except (Exception, SemanticError) as e:
             msg = str(e)
@@ -174,16 +172,20 @@ class Parser:
         if self.current_token and self.peek_value() == '@':
             self.print_current_token()
             self.log_production("<Rat26S> -> @ <Opt Function Definitions> @ <Opt Declaration List> @ <Statement List> @")
-            self.match('separator', '@')
+            if not self.match('separator', '@'):
+                self.error("Expected '@'")
             self.opt_function_definitions()
             self.print_current_token()
-            self.match('separator', '@')
+            if not self.match('separator', '@'):
+                self.error("Expected '@'")
             self.opt_declaration_list()
             self.print_current_token()
-            self.match('separator', '@')
+            if not self.match('separator', '@'):
+                self.error("Expected '@'")
             self.statement_list()
             self.print_current_token()
-            self.match('separator', '@')
+            if not self.match('separator', '@'):
+                self.error("Expected '@'")
         else:
             self.statement_list()
 
@@ -203,7 +205,8 @@ class Parser:
         self.log_production("<Declaration List> -> <Declaration> ; <Declaration List'>")
         self.declaration()
         self.print_current_token()
-        self.match('separator', ';')
+        if not self.match('separator', ';'):
+            self.error("Expected ';'")
         self.declaration_list_prime()
 
     def declaration_list_prime(self):
@@ -211,7 +214,8 @@ class Parser:
             self.log_production("<Declaration List'> -> <Declaration> ; <Declaration List'>")
             self.declaration()
             self.print_current_token()
-            self.match('separator', ';')
+            if not self.match('separator', ';'):
+                self.error("Expected ';'")
             self.declaration_list_prime()
         else:
             self.log_production("<Declaration List'> -> ε")
@@ -225,10 +229,12 @@ class Parser:
         self.print_current_token()
         if self.peek_value() == 'integer':
             self._current_decl_type = 'integer'
-            self.match('keyword', 'integer')
+            if not self.match('keyword', 'integer'):
+                self.error("Expected 'integer'")
         elif self.peek_value() == 'boolean':
             self._current_decl_type = 'boolean'
-            self.match('keyword', 'boolean')
+            if not self.match('keyword', 'boolean'):
+                self.error("Expected 'boolean'")
         else:
             self.error("Expected qualifier (integer | boolean)")
         self.log_production("<Qualifier> -> integer | boolean")
@@ -249,7 +255,8 @@ class Parser:
     def ids_prime(self, declaring=False):
         if self.peek_value() == ',':
             self.print_current_token()
-            self.match('separator', ',')
+            if not self.match('separator', ','):
+                self.error("Expected ','")
             self.log_production("<IDs'> -> , <Identifier> <IDs'>")
             self.print_current_token()
             if self.peek_type() != 'identifier':
@@ -307,10 +314,12 @@ class Parser:
     def compound(self):
         self.print_current_token()
         self.log_production("<Compound> -> { <Statement List> }")
-        self.match('separator', '{')
+        if not self.match('separator', '{'):
+            self.error("Expected '{'")
         self.statement_list()
         self.print_current_token()
-        self.match('separator', '}')
+        if not self.match('separator', '}'):
+            self.error("Expected '}'")
 
     def assign(self):
         self.print_current_token()
@@ -330,19 +339,23 @@ class Parser:
     def _if(self):
         self.print_current_token()
         self.log_production("<If> -> if ( <Condition> ) <Statement> <If_Tail>")
-        self.match('keyword', 'if')
+        if not self.match('keyword', 'if'):
+            self.error("Expected 'if'")
         self.print_current_token()
-        self.match('separator', '(')
+        if not self.match('separator', '('):
+            self.error("Expected '('")
         self.condition()
         self.print_current_token()
-        self.match('separator', ')')
+        if not self.match('separator', ')'):
+            self.error("Expected ')'")
         self.statement()
         self.if_tail()
 
     def if_tail(self):
         if self.peek_value() == 'otherwise':
             self.print_current_token()
-            self.match('keyword', 'otherwise')
+            if not self.match('keyword', 'otherwise'):
+                self.error("Expected 'otherwise'")
             self.log_production("<If_Tail> -> otherwise <Statement> fi")
             jmp_addr = self.gen("JMP", None)
             self.back_patch(self.instr_table.current_address)
@@ -357,20 +370,24 @@ class Parser:
             self.gen("LABEL", None)
             self.back_patch(self.instr_table.current_address - 1)
             self.print_current_token()
-            self.match('keyword', 'fi')
+            if not self.match('keyword', 'fi'):
+                self.error("Expected 'fi'")
         else:
             self.error("Expected 'fi' or 'otherwise'")
 
     def _while(self):
         self.print_current_token()
         self.log_production("<While> -> while ( <Condition> ) <Statement>")
-        self.match('keyword', 'while')
+        if not self.match('keyword', 'while'):
+            self.error("Expected 'while'")
         label_addr = self.gen("LABEL", None)
         self.print_current_token()
-        self.match('separator', '(')
+        if not self.match('separator', '('):
+            self.error("Expected '('")
         self.condition()
         self.print_current_token()
-        self.match('separator', ')')
+        if not self.match('separator', ')'):
+            self.error("Expected ')'")
         self.statement()
         self.gen("JMP", label_addr)
         self.back_patch(self.instr_table.current_address)
@@ -378,44 +395,55 @@ class Parser:
     def _return(self):
         self.print_current_token()
         self.log_production("<Return> -> return <Return_Tail>")
-        self.match('keyword', 'return')
+        if not self.match('keyword', 'return'):
+            self.error("Expected 'return'")
         self.return_tail()
 
     def return_tail(self):
         if self.peek_value() == ';':
             self.print_current_token()
-            self.match('separator', ';')
+            if not self.match('separator', ';'):
+                self.error("Expected ';'")
             self.log_production("<Return_Tail> -> ;")
         else:
             self.log_production("<Return_Tail> -> <Expression> ;")
             self.expression()
             self.print_current_token()
-            self.match('separator', ';')
+            if not self.match('separator', ';'):
+                self.error("Expected ';'")
 
     def print_statement(self):
         self.print_current_token()
         self.log_production("<Print> -> write ( <Expression> );")
-        self.match('keyword', 'write')
+        if not self.match('keyword', 'write'):
+            self.error("Expected 'write'")
         self.print_current_token()
-        self.match('separator', '(')
+        if not self.match('separator', '('):
+            self.error("Expected '('")
         self.expression()
         self.gen("SOUT", None)
         self.print_current_token()
-        self.match('separator', ')')
+        if not self.match('separator', ')'):
+            self.error("Expected ')'")
         self.print_current_token()
-        self.match('separator', ';')
+        if not self.match('separator', ';'):
+            self.error("Expected ';'")
 
     def scan(self):
         self.print_current_token()
         self.log_production("<Scan> -> read ( <IDs> );")
-        self.match('keyword', 'read')
+        if not self.match('keyword', 'read'):
+            self.error("Expected 'read'")
         self.print_current_token()
-        self.match('separator', '(')
+        if not self.match('separator', '('):
+            self.error("Expected '('")
         self._scan_ids()
         self.print_current_token()
-        self.match('separator', ')')
+        if not self.match('separator', ')'):
+            self.error("Expected ')'")
         self.print_current_token()
-        self.match('separator', ';')
+        if not self.match('separator', ';'):
+            self.error("Expected ';'")
 
     def _scan_ids(self):
         self.print_current_token()
@@ -428,7 +456,8 @@ class Parser:
         self.gen("POPM", addr)
         while self.peek_value() == ',':
             self.print_current_token()
-            self.match('separator', ',')
+            if not self.match('separator', ','):
+                self.error("Expected ','")
             self.print_current_token()
             if self.peek_type() != 'identifier':
                 self.error("Expected identifier after ','")
@@ -547,70 +576,3 @@ class Parser:
                 self.error("Expected ')' after expression")
         else:
             self.error("Invalid Primary")
-
-
-def run_test_on_file(file_path):
-    output_folder = "output_results"
-    if os.path.exists("Assignment3") and os.path.isdir("Assignment3"):
-        output_folder = os.path.join("Assignment3", "output_results")
-
-    os.makedirs(output_folder, exist_ok=True)
-
-    base_name = os.path.basename(file_path)
-    output_filename = os.path.join(output_folder, os.path.splitext(base_name)[0] + ".out")
-
-    print(f"\nRunning test on {file_path}...")
-    try:
-        with open(file_path, 'r') as f:
-            source_code = f.read()
-    except FileNotFoundError:
-        print(f"Error: File '{file_path}' not found.", file=sys.stderr)
-        return
-
-    from lexer import lexer
-    tokens = lexer(source_code)
-
-    parser = Parser(tokens)
-    success, _ = parser.parse(output_filename)
-
-    if success:
-        print("Syntax is correct.")
-        print(parser.instr_table.print_table())
-        print(parser.sym_table.print_table())
-        print(f"Output saved to: {output_filename}")
-    else:
-        print(f"Result: {base_name} - FAILED", file=sys.stderr)
-
-
-if __name__ == '__main__':
-    while True:
-        print("\n" + "=" * 30)
-        print("Rat26S Compiler - Assignment 3")
-        print("=" * 30)
-        print("1) Run Preset Test 1 (assignment3_sample.rat26)")
-        print("2) Run Preset Test 2 (test2.rat26)")
-        print("3) Run Preset Test 3 (test3.rat26)")
-        print("C) Run Custom file")
-        print("Q) Quit")
-
-        choice = input("\nSelection: ").strip().lower()
-        if choice == 'q':
-            break
-
-        filename = ""
-        if choice == '1':
-            filename = "assignment3_sample.rat26"
-        elif choice == '2':
-            filename = "test2.rat26"
-        elif choice == '3':
-            filename = "test3.rat26"
-        elif choice == 'c':
-            filename = input("Enter the filename to test: ").strip()
-        else:
-            print("Invalid selection.")
-            continue
-
-        if filename:
-            if not os.path.exists(filename) and os.path.exists(os.path.join("Assignment3", filename)):
-                filename = os.path.join("Assignment3", filename)
-            run_test_on_file(filename)
