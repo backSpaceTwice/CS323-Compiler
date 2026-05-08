@@ -1,6 +1,6 @@
 import os
 
-# Language Definition for Rat26S (simplified - no function definitions, no real type)
+# Language Definition for Rat26S (Simplified - no real type, no function keyword)
 KEYWORDS = {
     "integer", "boolean",
     "if", "otherwise", "fi",
@@ -26,11 +26,13 @@ class IdentifierFSM:
 
     def next_state(self, char):
         input_type = None
-        if char.isalpha():  input_type = 'letter'
+        if char.isalpha(): input_type = 'letter'
         elif char.isdigit(): input_type = 'digit'
-        elif char == '_':    input_type = '_'
+        elif char == '_': input_type = '_'
+
         if input_type is None:
             return 'reject'
+
         state = self.transition_table.get((self.current_state, input_type))
         return state if state else 'reject'
 
@@ -39,30 +41,36 @@ class IntegerFSM:
     def __init__(self):
         self.current_state = '1'
         self.accepting_states = {'2'}
-        self.transition_table = {('1', 'digit'): '2', ('2', 'digit'): '2'}
+        self.transition_table = {
+            ('1', 'digit'): '2', ('2', 'digit'): '2'
+        }
 
     def next_state(self, char):
         input_type = 'digit' if char.isdigit() else None
+
         if input_type is None:
             return 'reject'
+
         state = self.transition_table.get((self.current_state, input_type))
         return state if state else 'reject'
 
 
 def lexer(content):
-    content += " "
+    content += " "  # EOF padding
     char_pointer = 0
     length = len(content)
     tokens_and_lexemes = []
     line = 1
 
     while char_pointer < length:
+        # Skip Whitespace
         if content[char_pointer].isspace():
             if content[char_pointer] == "\n":
                 line += 1
             char_pointer += 1
             continue
 
+        # Skip Comments /* ... */
         if content[char_pointer] == "/" and char_pointer + 1 < length and content[char_pointer + 1] == "*":
             char_pointer += 2
             while char_pointer + 1 < length:
@@ -76,6 +84,7 @@ def lexer(content):
 
         token_start_line = line
 
+        # 1. Match two-character operators first
         if char_pointer + 1 < length:
             two_char = content[char_pointer: char_pointer + 2]
             if two_char in OPERATORS:
@@ -83,6 +92,7 @@ def lexer(content):
                 char_pointer += 2
                 continue
 
+        # 2. Match single-character operators and separators
         one_char = content[char_pointer]
         if one_char in SEPARATORS:
             tokens_and_lexemes.append(("separator", one_char, token_start_line))
@@ -93,6 +103,7 @@ def lexer(content):
             char_pointer += 1
             continue
 
+        # 3. Match Identifiers/Keywords and Integers using FSMs (Greedy)
         id_fsm = IdentifierFSM()
         int_fsm = IntegerFSM()
 
@@ -107,6 +118,7 @@ def lexer(content):
             c = content[temp_ptr]
             any_active = False
 
+            # Identifier FSM
             if id_fsm.current_state != 'reject':
                 next_s = id_fsm.next_state(c)
                 if next_s != 'reject':
@@ -117,9 +129,9 @@ def lexer(content):
                             last_valid_type = "keyword" if current_id_lexeme in KEYWORDS else "identifier"
                             last_valid_lexeme = current_id_lexeme
                     any_active = True
-                else:
-                    id_fsm.current_state = 'reject'
+                else: id_fsm.current_state = 'reject'
 
+            # Integer FSM
             if int_fsm.current_state != 'reject':
                 next_s = int_fsm.next_state(c)
                 if next_s != 'reject':
@@ -130,8 +142,7 @@ def lexer(content):
                             last_valid_type = "integer"
                             last_valid_lexeme = current_int_lexeme
                     any_active = True
-                else:
-                    int_fsm.current_state = 'reject'
+                else: int_fsm.current_state = 'reject'
 
             if not any_active:
                 break
@@ -141,6 +152,7 @@ def lexer(content):
             tokens_and_lexemes.append((last_valid_type, last_valid_lexeme, token_start_line))
             char_pointer += len(last_valid_lexeme)
         else:
+            # Illegal character
             if char_pointer < length - 1:
                 tokens_and_lexemes.append(("invalid", content[char_pointer], token_start_line))
             char_pointer += 1

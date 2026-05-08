@@ -1,0 +1,119 @@
+Token: Separator        Lexeme: @
+    <Rat26S> -> @ <Opt Function Definitions> @ <Opt Declaration List> @ <Statement List> @
+    <Opt Function Definitions> -> ε
+Token: Separator        Lexeme: @
+    <Opt Declaration List> -> <Declaration List>
+    <Declaration List> -> <Declaration> ; <Declaration List'>
+    <Declaration> -> <Qualifier> <IDs>
+Token: Keyword          Lexeme: integer
+    <Qualifier> -> integer | boolean
+Token: Identifier       Lexeme: x
+    <IDs> -> <Identifier> <IDs'>
+Token: Separator        Lexeme: ,
+    <IDs'> -> , <Identifier> <IDs'>
+Token: Identifier       Lexeme: y
+    <IDs'> -> ε
+Token: Separator        Lexeme: ;
+    <Declaration List'> -> ε
+Token: Separator        Lexeme: @
+    <Statement List> -> <Statement> <Statement List'>
+    <Statement> -> <Scan>
+Token: Keyword          Lexeme: read
+    <Scan> -> read ( <IDs> );
+Token: Separator        Lexeme: (
+Token: Identifier       Lexeme: x
+Token: Separator        Lexeme: )
+Token: Separator        Lexeme: ;
+    <Statement List'> -> <Statement> <Statement List'>
+    <Statement> -> <Scan>
+Token: Keyword          Lexeme: read
+    <Scan> -> read ( <IDs> );
+Token: Separator        Lexeme: (
+Token: Identifier       Lexeme: y
+Token: Separator        Lexeme: )
+Token: Separator        Lexeme: ;
+    <Statement List'> -> <Statement> <Statement List'>
+    <Statement> -> <If>
+Token: Keyword          Lexeme: if
+    <If> -> if ( <Condition> ) <Statement> <If_Tail>
+Token: Separator        Lexeme: (
+    <Condition> -> <Expression> <Relop> <Expression>
+    <Expression> -> <Term> <Expression'>
+    <Term> -> <Factor> <Term'>
+    <Factor> -> <Primary>
+Token: Identifier       Lexeme: x
+    <Primary> -> <Identifier>
+    <Term'> -> ε
+    <Expression'> -> ε
+Token: Operator         Lexeme: ==
+    <Relop> -> == | != | > | < | <= | =>
+    <Expression> -> <Term> <Expression'>
+    <Term> -> <Factor> <Term'>
+    <Factor> -> <Primary>
+Token: Identifier       Lexeme: y
+    <Primary> -> <Identifier>
+    <Term'> -> ε
+    <Expression'> -> ε
+Token: Separator        Lexeme: )
+    <Statement> -> <Print>
+Token: Keyword          Lexeme: write
+    <Print> -> write ( <Expression> );
+Token: Separator        Lexeme: (
+    <Expression> -> <Term> <Expression'>
+    <Term> -> <Factor> <Term'>
+    <Factor> -> <Primary>
+Token: Integer          Lexeme: 1
+    <Primary> -> <Integer>
+    <Term'> -> ε
+    <Expression'> -> ε
+Token: Separator        Lexeme: )
+Token: Separator        Lexeme: ;
+Token: Keyword          Lexeme: otherwise
+    <If_Tail> -> otherwise <Statement> fi
+    <Statement> -> <Print>
+Token: Keyword          Lexeme: write
+    <Print> -> write ( <Expression> );
+Token: Separator        Lexeme: (
+    <Expression> -> <Term> <Expression'>
+    <Term> -> <Factor> <Term'>
+    <Factor> -> <Primary>
+Token: Integer          Lexeme: 0
+    <Primary> -> <Integer>
+    <Term'> -> ε
+    <Expression'> -> ε
+Token: Separator        Lexeme: )
+Token: Separator        Lexeme: ;
+Token: Keyword          Lexeme: fi
+    <Statement List'> -> ε
+Token: Separator        Lexeme: @
+
+Syntax is correct.
+
+
+========================================
+  Assembly Code Listing
+========================================
+  1     SIN
+  2     POPM        10000
+  3     SIN
+  4     POPM        10001
+  5     PUSHM       10000
+  6     PUSHM       10001
+  7     EQU
+  8     JMPZ        12
+  9     PUSHI       1
+  10    SOUT
+  11    JMP         14
+  12    PUSHI       0
+  13    SOUT
+========================================
+
+
+=============================================
+  Symbol Table
+=============================================
+  Identifier      MemoryLocation     Type
+=============================================
+  x               10000              integer
+  y               10001              integer
+=============================================
