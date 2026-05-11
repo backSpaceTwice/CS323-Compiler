@@ -1,8 +1,18 @@
 import os
 import sys
 
+# Determine the base directory for file operations
+if getattr(sys, 'frozen', False):
+    # Running as a compiled EXE (e.g., PyInstaller)
+    base_dir = os.path.dirname(sys.executable)
+    # The script/modules themselves are in _MEIPASS
+    script_dir = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+else:
+    # Running as a normal Python script
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    script_dir = base_dir
+
 # Ensure the current script directory is in the path for imports
-script_dir = os.path.dirname(os.path.abspath(__file__))
 if script_dir not in sys.path:
     sys.path.insert(0, script_dir)
 
@@ -18,18 +28,25 @@ def run_test_on_file(file_path):
     """
     Runs the parser on a single file and prints tables to console.
     """
-    # Determine the actual path to the file
-    actual_path = file_path
-    if not os.path.exists(actual_path):
-        # Try relative to script directory if not found
-        potential_path = os.path.join(script_dir, os.path.basename(file_path))
-        if os.path.exists(potential_path):
-            actual_path = potential_path
-        else:
-            print(f"Error: File '{file_path}' not found at any known location.", file=sys.stderr)
-            return
+    # Try multiple locations to find the source file
+    locations_to_check = [
+        file_path,                                  # Relative to current working directory
+        os.path.join(base_dir, file_path),          # Relative to EXE/Script directory
+        os.path.join(base_dir, os.path.basename(file_path)) # Just the filename in base directory
+    ]
 
-    output_folder = os.path.join(script_dir, "output_results")
+    actual_path = None
+    for loc in locations_to_check:
+        if os.path.exists(loc):
+            actual_path = loc
+            break
+
+    if actual_path is None:
+        print(f"Error: File '{file_path}' not found.", file=sys.stderr)
+        return
+
+    # Results should always go next to the executable
+    output_folder = os.path.join(base_dir, "output_results")
     os.makedirs(output_folder, exist_ok=True)
 
     base_name = os.path.basename(actual_path)
